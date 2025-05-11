@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Modifier le produit</title>
+  <style>
+    .form-container {
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 2rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    img {
+      max-width: 100%;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h1>Modifier le produit</h1>
+
+    <form action="/products/edit/<%= product._id %>" method="POST" enctype="multipart/form-data">
+      <div class="form-group">
+        <label>Nom du produit</label>
+        <input type="text" name="nom" value="<%= product.nom %>" required>
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea name="description" rows="4"><%= product.description %></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Prix (€)</label>
+        <input type="number" name="prix" step="0.01" value="<%= product.prix %>" required>
+      </div>
+
+      <div class="form-group">
+        <label>Catégorie</label>
+        <input type="text" name="categorie" value="<%= product.categorie %>">
+      </div>
+
+      <div class="form-group">
+        <label>Stock</label>
+        <input type="number" name="stock" min="0" value="<%= product.stock %>">
+      </div>
+
+      <div class="form-group">
+        <label>Image actuelle</label><br>
+        <img src="<%= product.imageUrl %>" alt="Image du produit">
+      </div>
+
+      <div class="form-group">
+        <label>Changer l'image</label>
+        <input type="file" name="image" accept="image/*">
+      </div>
+
+      <button type="submit">Enregistrer les modifications</button>
+    </form>
+  </div>
+</body>
+</html>

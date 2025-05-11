@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+      color: #333;
+    }
+    header {
+      background-color: #222;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    .container {
+      padding: 2rem;
+    }
+    h2 {
+      margin-top: 3rem;
+      color: #444;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      background: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    th, td {
+      padding: 1rem;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #f0f0f0;
+      font-weight: 600;
+    }
+    .btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .btn-edit {
+      background-color: #007bff;
+      color: white;
+    }
+    .btn-delete {
+      background-color: #e63946;
+      color: white;
+    }
+    .badge {
+      padding: 0.3rem 0.6rem;
+      background-color: #eee;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Tableau de Bord - Admin</h1>
+    <p>Bienvenue, <%= user.nom %> (admin)</p>
+    <a href="/products" style="color: white; margin-right: 20px;">📦 Produits</a>
+<a href="/admin/users" style="color: white;">👥 Gérer les utilisateurs</a>
+
+  </header>
+
+  <div class="container">
+
+
+    <h2>Statistiques</h2>
+<div style="display: flex; gap: 2rem; margin-bottom: 2rem;">
+  <div style="background: #e0f7fa; padding: 1rem 2rem; border-radius: 8px;">
+    <h3>🛒 Produits</h3>
+    <p><%= stats.totalProduits %></p>
+  </div>
+  <div style="background: #fce4ec; padding: 1rem 2rem; border-radius: 8px;">
+    <h3>👥 Utilisateurs</h3>
+    <p><%= stats.totalUtilisateurs %></p>
+  </div>
+  <div style="background: #e8f5e9; padding: 1rem 2rem; border-radius: 8px;">
+    <h3>💬 Feedbacks</h3>
+    <p><%= stats.totalFeedbacks %></p>
+  </div>
+</div>
+
+<form method="GET" action="/dashboard" style="margin: 1rem 0;">
+  <input type="text" name="search" placeholder="Rechercher produit ou feedback..." value="<%= search %>" style="padding: 0.5rem; width: 300px;">
+  <button type="submit" style="padding: 0.5rem;">🔍 Rechercher</button>
+</form>
+
+
+
+    <h2>Produits</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Nom</th>
+          <th>Prix</th>
+          <th>Stock</th>
+          <th>Catégorie</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% products.forEach(product => { %>
+          <tr>
+            <td><img src="<%= product.imageUrl %>" alt="<%= product.nom %>" width="60"></td>
+            <td><%= product.nom %></td>
+            <td><%= product.prix.toFixed(2) %> €</td>
+            <td><%= product.stock %></td>
+            <td><%= product.categorie || "-" %></td>
+            <td>
+              <a href="/products/edit/<%= product._id %>" class="btn btn-edit">Modifier</a>
+
+<form action="/products/delete/<%= product._id %>" method="POST" style="display:inline;">
+  <button type="submit" class="btn btn-delete" onclick="return confirm('Supprimer ce produit ?')">Supprimer</button>
+</form>
+
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <h2>Feedbacks</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Produit</th>
+          <th>Utilisateur</th>
+          <th>Note</th>
+          <th>Commentaire</th>
+          <th>Date</th>
+            <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% feedbacks.forEach(fb => { %>
+          <tr>
+            <td><span class="badge"><%= fb.product.nom %></span></td>
+            <td><%= fb.user.nom %></td>
+            <td><%= fb.note %>/5</td>
+            <td><%= fb.commentaire %></td>
+            <td><%= new Date(fb.createdAt).toLocaleDateString() %></td>
+            <td>
+              <form action="/admin/feedbacks/delete/<%= fb._id %>" method="POST" onsubmit="return confirm('Supprimer ce feedback ?')">
+  <button class="btn btn-delete">Supprimer</button>
+</form>
+
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+</body>
+</html>

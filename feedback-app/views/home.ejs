@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Accueil - Produits</title>
+  <style>
+    body { font-family: Arial; }
+    .product {
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+      padding: 10px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Produits disponibles</h2>
+
+  <% produits.forEach(p => { %>
+    <div class="product">
+      <h3><%= p.nom %></h3>
+      <p><%= p.description %></p>
+
+      <form action="/feedback" method="POST">
+        <input type="hidden" name="productId" value="<%= p._id %>">
+        <input type="hidden" name="userId" value="<%= user ? user._id : '' %>"> <!-- à remplacer plus tard -->
+
+        <label>Note (/5) : </label>
+        <input type="number" name="note" min="1" max="5" required><br><br>
+
+        <label>Commentaire :</label><br>
+        <textarea name="commentaire" rows="3" cols="40" required></textarea><br><br>
+
+        <button type="submit">Envoyer le feedback</button>
+      </form>
+    </div>
+  <% }) %>
+
+</body>
+</html>

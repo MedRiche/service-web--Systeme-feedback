@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Nos Produits</title>
+  <style>
+
+    /* MODAL POP-UP */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 5% auto;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px; right: 15px;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  color: #333;
+}
+
+
+
+
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background-color: #f9f9f9;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .filter-bar {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .filter-bar form {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    select, button {
+      padding: 0.5rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
+    .product-card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+      background-color: #fff;
+      transition: transform 0.3s;
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    .product-image {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .product-info {
+      padding: 1rem;
+    }
+
+    .product-price {
+      color: #e63946;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    .pagination {
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .pagination a {
+      margin: 0 6px;
+      padding: 6px 12px;
+      text-decoration: none;
+      border-radius: 4px;
+      color: #007bff;
+      border: 1px solid transparent;
+    }
+
+    .pagination a:hover {
+      background-color: #f0f0f0;
+    }
+
+    .pagination .active {
+      text-decoration: underline;
+      font-weight: bold;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Nos Produits</h1>
+
+  <div class="filter-bar">
+    <form method="GET" action="/products">
+      <label>Catégorie :</label>
+      <select name="categorie">
+        <option value="">-- Toutes --</option>
+        <% categories.forEach(cat => { %>
+          <option value="<%= cat %>" <%= selectedCategorie === cat ? 'selected' : '' %>><%= cat %></option>
+        <% }) %>
+      </select>
+
+      <label>Trier par :</label>
+      <select name="sort">
+        <option value="">-- Aucun --</option>
+        <option value="prixAsc" <%= selectedSort === 'prixAsc' ? 'selected' : '' %>>Prix croissant</option>
+        <option value="prixDesc" <%= selectedSort === 'prixDesc' ? 'selected' : '' %>>Prix décroissant</option>
+      </select>
+
+      <button type="submit">🔍 Filtrer</button>
+
+      <% if (user && user.role === 'admin') { %>
+        <a href="/products/new" style="margin-left: 20px;">➕ Ajouter un produit</a>
+      <% } %>
+    </form>
+  </div>
+
+  <div class="products-grid">
+
+    <!-- MODAL HTML -->
+<div id="productModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn" onclick="closeModal()">&times;</span>
+    <h2 id="modalTitle"></h2>
+    <img id="modalImage" src="" style="width: 100%; max-height: 300px; object-fit: cover;">
+    <p id="modalDescription"></p>
+    <p><strong>Prix :</strong> <span id="modalPrix"></span> €</p>
+    <p><strong>Stock :</strong> <span id="modalStock"></span></p>
+    <p><strong>Catégorie :</strong> <span id="modalCategorie"></span></p>
+  </div>
+</div>
+
+
+
+    <% products.forEach(product => { %>
+      <div class="product-card">
+        <img src="<%= product.imageUrl %>" alt="<%= product.nom %>" class="product-image">
+        <div class="product-info">
+          <h3><%= product.nom %></h3>
+          <p><%= product.description %></p>
+          <p class="product-price"><%= product.prix.toFixed(2) %> €</p>
+          <p>Stock: <%= product.stock %></p>
+          <p>Catégorie: <%= product.categorie || "Non spécifiée" %></p>
+          <a href="/products/<%= product._id %>">🔍 Voir détails</a>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+
+  <% if (totalPages > 1) { %>
+    <div class="pagination">
+      <% for (let i = 1; i <= totalPages; i++) { %>
+        <a href="/products?page=<%= i %><%= selectedCategorie ? '&categorie=' + selectedCategorie : '' %><%= selectedSort ? '&sort=' + selectedSort : '' %>"
+           class="<%= i === currentPage ? 'active' : '' %>">
+          <%= i %>
+        </a>
+      <% } %>
+    </div>
+  <% } %>
+
+</body>
+
+<script>
+  function openModal(product) {
+    document.getElementById('modalTitle').innerText = product.nom;
+    document.getElementById('modalImage').src = product.imageUrl;
+    document.getElementById('modalDescription').innerText = product.description;
+    document.getElementById('modalPrix').innerText = product.prix.toFixed(2);
+    document.getElementById('modalStock').innerText = product.stock;
+    document.getElementById('modalCategorie').innerText = product.categorie || "Non spécifiée";
+
+    document.getElementById('productModal').style.display = "block";
+  }
+
+  function closeModal() {
+    document.getElementById('productModal').style.display = "none";
+  }
+
+  // Fermer la modal si on clique dehors
+  window.onclick = function(event) {
+    const modal = document.getElementById('productModal');
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
+</script>
+
+
+
+
+</html>

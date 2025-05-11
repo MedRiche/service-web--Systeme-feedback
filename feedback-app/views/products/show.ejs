@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title><%= product.nom %> - Détails</title>
+  <style>
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 2rem;
+    }
+    .product-image {
+      width: 100%;
+      max-height: 400px;
+      object-fit: cover;
+    }
+    .feedback {
+      border: 1px solid #ddd;
+      padding: 1rem;
+      margin-top: 1rem;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><%= product.nom %></h1>
+    <img src="<%= product.imageUrl %>" alt="<%= product.nom %>" class="product-image">
+    <p><strong>Prix:</strong> <%= product.prix.toFixed(2) %> €</p>
+    <p><strong>Catégorie:</strong> <%= product.categorie %></p>
+    <p><strong>Description:</strong> <%= product.description %></p>
+    <p><strong>Stock:</strong> <%= product.stock %></p>
+
+    <hr>
+
+    <h2>Feedbacks</h2>
+    <% if (feedbacks.length === 0) { %>
+      <p>Aucun feedback pour ce produit.</p>
+    <% } else { %>
+      <% feedbacks.forEach(fb => { %>
+        <div class="feedback">
+          <strong><%= fb.user.nom %></strong> - Note : <%= fb.note %>/5
+          <p><%= fb.commentaire %></p>
+        </div>
+      <% }) %>
+    <% } %>
+
+    <% if (user) { %>
+      <hr>
+      <h3>Ajouter un feedback</h3>
+      <form action="/feedback" method="POST">
+        <input type="hidden" name="productId" value="<%= product._id %>">
+        <input type="hidden" name="userId" value="<%= user._id %>">
+
+        <label>Note (/5)</label>
+        <input type="number" name="note" min="1" max="5" required><br><br>
+
+        <label>Commentaire</label><br>
+        <textarea name="commentaire" rows="4" required></textarea><br><br>
+
+        <button type="submit">Envoyer</button>
+      </form>
+    <% } else { %>
+      <p><a href="/login">Connectez-vous</a> pour laisser un feedback.</p>
+    <% } %>
+  </div>
+</body>
+</html>
