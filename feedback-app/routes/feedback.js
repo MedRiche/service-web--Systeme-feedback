@@ -18,24 +18,54 @@ router.get("/home", async (req, res) => {
 });
 
 // Ajout d'un feedback
+// Ajout d'un feedback
 router.post("/feedback", async (req, res) => {
-  const { userId, productId, note, commentaire } = req.body;
-
-  if (!userId) {
-    return res.status(401).send("Vous devez être connecté");
-  }
+  const {
+    userId,
+    productId,
+    note,
+    commentaire,
+    satisfaction,
+    dateAchat,
+    dureeUtilisation
+  } = req.body;
 
   try {
-    await Feedback.create({
+    const feedback = await Feedback.create({
+      user: userId,
+      product: productId,
       note,
       commentaire,
-      user: userId,
-      product: productId
+      satisfaction,
+      dateAchat: dateAchat || null,
+      dureeUtilisation
     });
-    res.redirect(`/products/${productId}`);
+
+    // Redirection vers page de remerciement
+    res.redirect(`/feedback/${feedback._id}/confirmation`);
   } catch (err) {
-    res.status(500).send("Erreur: " + err.message);
+    res.status(500).send("Erreur lors de l'ajout du feedback : " + err.message);
   }
 });
+
+router.get("/feedback/:id/confirmation", async (req, res) => {
+  try {
+    const feedback = await Feedback.findById(req.params.id)
+      .populate("user", "nom")
+      .populate("product", "nom imageUrl");
+
+    if (!feedback) return res.status(404).send("Feedback introuvable");
+
+    res.render("feedback/confirmation", { feedback });
+  } catch (err) {
+    res.status(500).send("Erreur d'affichage : " + err.message);
+  }
+});
+
+
+
+
+
+
 
 module.exports = router;

@@ -30,15 +30,51 @@ router.get("/", async (req, res) => {
 
   const categories = await Product.distinct("categorie");
 
+  // Charger les feedbacks groupés par produit
+  const feedbacks = await Feedback.find()
+    .populate("user", "nom") // Pour afficher le nom du user
+    .populate("product", "_id");
+
+  // Grouper les feedbacks par produitId
+  const feedbacksByProduct = {};
+  feedbacks.forEach(fb => {
+    const pid = fb.product._id.toString();
+    if (!feedbacksByProduct[pid]) feedbacksByProduct[pid] = [];
+    feedbacksByProduct[pid].push(fb);
+  });
+
   res.render("products/list", {
     products,
     currentPage: page,
     totalPages,
     selectedCategorie,
     categories,
-    selectedSort: sortOption
+    selectedSort: sortOption,
+    user: req.session.user,
+    feedbacksByProduct
   });
 });
+
+router.get("/:id/feedback", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!req.session.user) {
+      return res.redirect("/login");
+    }
+
+    res.render("products/feedback_form", {
+      product,
+      user: req.session.user
+    });
+  } catch (err) {
+    res.status(404).send("Produit introuvable");
+  }
+});
+
+
+
+
 
 
 // Formulaire d'ajout

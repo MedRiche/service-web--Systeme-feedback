@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Donner un feedback - <%= product.nom %></title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 2rem;
+      background: #f9f9f9;
+    }
+
+    .form-container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    input, textarea {
+      width: 100%;
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+    }
+
+    button {
+      padding: 0.5rem 1rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    <h2>💬 Donner un feedback sur <%= product.nom %></h2>
+
+    <form action="/feedback" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="userId" value="<%= user._id %>">
+      <input type="hidden" name="productId" value="<%= product._id %>">
+
+      <label>Note (/5)</label>
+      <input type="number" name="note" min="1" max="5" required>
+
+      <label>Commentaire</label>
+      <textarea name="commentaire" rows="4" required></textarea>
+
+      <label>Êtes-vous satisfait(e) ?</label><br>
+      <label><input type="radio" name="satisfaction" value="oui" required> Oui</label>
+      <label><input type="radio" name="satisfaction" value="non"> Non</label>
+
+      <br><br>
+
+      <label>Date d'achat</label>
+      <input type="date" name="dateAchat">
+
+      <label>Durée d'utilisation</label>
+      <input type="text" name="dureeUtilisation" placeholder="Ex : 2 mois, 1 semaine...">
+
+      <br>
+      <button type="submit">✅ Envoyer feedback</button>
+    </form>
+  </div>
+
+</body>
+</html>

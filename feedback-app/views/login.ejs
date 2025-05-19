@@ -1,6 +1,340 @@
-<h2>Connexion</h2>
-<form method="POST" action="/login">
-  <input type="email" name="email" placeholder="Email" required /><br />
-  <input type="password" name="password" placeholder="Mot de passe" required /><br />
-  <button type="submit">Se connecter</button>
-</form>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion</title>
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-dark: #3a56d4;
+      --error: #ef233c;
+      --light-gray: #f8f9fa;
+      --gray: #adb5bd;
+      --dark: #212529;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--light-gray);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 1rem;
+      line-height: 1.5;
+    }
+    
+    .form-container {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      transition: transform 0.3s ease;
+    }
+    
+    .form-container:hover {
+      transform: translateY(-5px);
+    }
+    
+    .form-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .form-title {
+      color: var(--dark);
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    
+    .form-subtitle {
+      color: var(--gray);
+      font-size: 0.9375rem;
+    }
+    
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    
+    .input-group {
+      position: relative;
+    }
+    
+    .input-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--dark);
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    
+    .input-field {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      font-size: 0.9375rem;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      background-color: #f8f9fa;
+    }
+    
+    .input-field:focus {
+      outline: none;
+      border-color: var(--primary);
+      background-color: white;
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+    }
+    
+    .password-toggle {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--gray);
+      cursor: pointer;
+      font-size: 1.25rem;
+      transition: color 0.2s ease;
+    }
+    
+    .password-toggle:hover {
+      color: var(--primary);
+    }
+    
+    .submit-btn {
+      width: 100%;
+      padding: 1rem;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 0.5rem;
+    }
+    
+    .submit-btn:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+    }
+    
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+    
+    .submit-btn.loading {
+      position: relative;
+      pointer-events: none;
+    }
+    
+    .submit-btn-text {
+      transition: opacity 0.3s ease;
+    }
+    
+    .submit-btn.loading .submit-btn-text {
+      opacity: 0;
+    }
+    
+    .loading-spinner {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 1.5rem;
+      height: 1.5rem;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s linear infinite;
+    }
+    
+    .error-message {
+      color: var(--error);
+      font-size: 0.8125rem;
+      margin-top: 0.25rem;
+      display: none;
+    }
+    
+    .input-error {
+      border-color: var(--error) !important;
+    }
+    
+    .forgot-password {
+      text-align: right;
+      margin-top: -0.75rem;
+    }
+    
+    .forgot-password a {
+      color: var(--gray);
+      font-size: 0.8125rem;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+    
+    .forgot-password a:hover {
+      color: var(--primary);
+    }
+    
+    @keyframes spin {
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+    
+    @media (max-width: 480px) {
+      .form-container {
+        padding: 1.75rem;
+      }
+      
+      .form-title {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <div class="form-header">
+      <h1 class="form-title">Connexion</h1>
+      <p class="form-subtitle">Connectez-vous pour accéder à votre compte</p>
+    </div>
+    
+    <form class="login-form" method="POST" action="/login" id="loginForm">
+      <div class="input-group">
+        <label for="email" class="input-label">Adresse email</label>
+        <input 
+          type="email" 
+          id="email" 
+          name="email" 
+          class="input-field" 
+          placeholder="exemple@email.com" 
+          required
+        >
+        <div id="email-error" class="error-message"></div>
+      </div>
+      
+      <div class="input-group">
+        <label for="password" class="input-label">Mot de passe</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          class="input-field" 
+          placeholder="••••••••" 
+          required
+          minlength="6"
+        >
+        <button type="button" class="password-toggle" aria-label="Afficher le mot de passe" id="togglePassword">
+          👁️
+        </button>
+        <div id="password-error" class="error-message"></div>
+      </div>
+      
+      <div class="forgot-password">
+        <a href="/forgot-password">Mot de passe oublié ?</a>
+      </div>
+      
+      <button type="submit" class="submit-btn" id="submitBtn">
+        <span class="submit-btn-text">Se connecter</span>
+        <span class="loading-spinner"></span>
+      </button>
+    </form>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const loginForm = document.getElementById('loginForm');
+      const emailInput = document.getElementById('email');
+      const passwordInput = document.getElementById('password');
+      const togglePasswordBtn = document.getElementById('togglePassword');
+      const submitBtn = document.getElementById('submitBtn');
+      const emailError = document.getElementById('email-error');
+      const passwordError = document.getElementById('password-error');
+      const loadingSpinner = document.querySelector('.loading-spinner');
+      
+      // Toggle password visibility
+      togglePasswordBtn.addEventListener('click', function() {
+        const isPassword = passwordInput.type === 'password';
+        passwordInput.type = isPassword ? 'text' : 'password';
+        this.setAttribute('aria-label', 
+          isPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe');
+        this.textContent = isPassword ? '👁️‍🗨️' : '👁️';
+      });
+      
+      // Form validation
+      function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+      }
+      
+      // Form submission
+      loginForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Reset errors
+        emailError.style.display = 'none';
+        passwordError.style.display = 'none';
+        emailInput.classList.remove('input-error');
+        passwordInput.classList.remove('input-error');
+        
+        // Validate inputs
+        let isValid = true;
+        
+        if (!validateEmail(emailInput.value)) {
+          emailError.textContent = "Veuillez entrer une adresse email valide";
+          emailError.style.display = 'block';
+          emailInput.classList.add('input-error');
+          isValid = false;
+        }
+        
+        if (passwordInput.value.length < 6) {
+          passwordError.textContent = "Le mot de passe doit contenir au moins 6 caractères";
+          passwordError.style.display = 'block';
+          passwordInput.classList.add('input-error');
+          isValid = false;
+        }
+        
+        if (!isValid) return;
+        
+        // Show loading state
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+        loadingSpinner.style.display = 'block';
+        
+        try {
+          // Simulate API call
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+          // If successful, submit the form
+          this.submit();
+        } catch (error) {
+          // Handle error
+          emailError.textContent = "Identifiants incorrects ou problème de connexion";
+          emailError.style.display = 'block';
+          emailInput.classList.add('input-error');
+        } finally {
+          // Reset loading state
+          submitBtn.classList.remove('loading');
+          submitBtn.disabled = false;
+          loadingSpinner.style.display = 'none';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
